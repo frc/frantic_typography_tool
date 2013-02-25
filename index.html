@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+		<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+		<script>
+			$(document).ready(function(){
+				$("#generator input, #generator select").bind("change keyup", function(){render()});
+				$("#download").bind('click', function(){download()});
+				render();
+			});
+		
+			function download(){
+				var canvas = document.getElementById('render');
+				var data = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+				window.location.href = data;
+			}
+			
+			function render() {
+			var form = document.getElementById('generator');
+			text = form.uppercase.checked ? form.text.value.toUpperCase() : form.text.value;
+			var temp = document.createElement('span');
+			var canvas = document.getElementById('render');
+			document.body.appendChild(temp);
+			temp.innerText = text;
+			temp.style.fontStyle = form.fontstyle.options[form.fontstyle.selectedIndex].value;
+			temp.style.fontFamily = form.font.value;
+			temp.style.fontSize = form.fontsize.value+"px";
+			temp.style.fontWeight = form.fontweight.value;
+			temp.style.letterSpacing = form.kerning.value+"px";
+			canvas.width = temp.offsetWidth - parseInt(form.kerning.value);
+			canvas.height = temp.offsetHeight;
+			document.body.removeChild(temp);
+			var context = canvas.getContext('2d');
+			text = text.split('');
+			var children = [];
+			var left=0
+			for (i = 0; i < text.length; i++) {
+				var child = document.createElement('span');
+				document.body.appendChild(child);
+				child.innerText = text[i];
+				child.style.fontStyle = form.fontstyle.value;
+				child.style.fontFamily = form.font.value;
+				child.style.fontSize = form.fontsize.value+"px";
+				child.style.fontWeight = form.fontweight.value;
+				var ca=new Array(child.offsetWidth, left);
+				children.push(ca);
+				left+=child.offsetWidth + parseInt(form.kerning.value);
+				document.body.removeChild(child);
+			}
+			for (i = children.length-1; i >= 0; i--) {
+				var tempcanvas = document.createElement('canvas');
+				var font = form.fontstyle.value + ' ' + form.fontweight.value + ' ' + form.fontsize.value +"px" + ' ' + form.font.value;
+				tempcanvas.width = children[i][0] * 2;
+				tempcanvas.height = canvas.height;
+				var tempcontext = tempcanvas.getContext('2d');
+				tempcontext.fillStyle = form.color.value;
+				tempcontext.font = font;
+				tempcontext.shadowColor = form.color.value;
+				tempcontext.shadowOffsetX = 0;
+				tempcontext.shadowOffsetY = 0;
+				tempcontext.shadowBlur = 2;
+				tempcontext.fillText(text[i], children[i][0], tempcanvas.height * 0.78);
+				tempcontext.beginPath();
+				tempcontext.moveTo(0,0);
+				tempcontext.lineTo(0,tempcanvas.height);
+				tempcontext.closePath();
+				tempcontext.stroke();
+				tempcontext.globalCompositeOperation = 'source-atop';
+				tempcontext.shadowColor = form.shadowcolor.value;
+				tempcontext.shadowOffsetX = form.shadowoffsetx.value;
+				tempcontext.shadowOffsetY = form.shadowoffsety.value;
+				tempcontext.shadowBlur = form.shadowblur.value;
+				if (i > 0) {
+					tempcontext.fillText(text[i - 1], children[i][0] - children[i - 1][0] - form.kerning.value, canvas.height * 0.78);
+				}
+				context.drawImage(tempcanvas, children[i][0], 0, children[i][0], canvas.height, children[i][1], 0, children[i][0], canvas.height);
+				//context.drawImage(tempcanvas,children[i][1],0);
+			}
+		}
+	</script>
+
+	</head>
+	<body style='background-color: #57cced'>
+		<form id="generator" action="#">
+			<label for="text">Text</label><input type="text" name="text" id="text" value="typography"/>
+			<fieldset>
+				<legend>Text</legend>
+				<span><label for="font">Font</label><input type="text" name="font" id="font" value="Museo Sans" /></span>
+				<span><label for="fontsize">Font size</label><input type="number" name="fontsize" id="fontsize" value="90" step="2" /></span>
+				<span><label for="fontstyle">Font style</label><select id="fontstyle"><option selected="selected" value="normal">normal</option><option value="italic">italic</option><option value="oblique">oblique</option></select></span>
+				<span><label for="fontweight">Font weight</label><input type="number" name="fontweight" id="fontweight" value="900" step="100" min="100" max="900"/></span>
+				<span><label for="kerning">Kerning</label><input type="number" name="kerning" id="kerning" value="-15" /></span>
+				<span><label for="color">Text Color</label><input type="color" name="color" id="color" value="#fff"/></span>
+				<span><label for="uppercase">Uppercase</label><input type="checkbox" name="uppercase" id="uppercase" checked="checked" value="true" /></span>
+			</fieldset>
+			<fieldset>
+				<legend>Shadow</legend>
+				<label for="shadowcolor">Shadow color</label><input type="color" name="shadowcolor" id="shadowcolor" value="rgba(0,0,0,0.2)" />
+				<label for="shadowoffsetx">Shadow offsetX</label><input type="number" name="shadowoffsetx" id="shadowoffsetx" value="5" />
+				<label for="shadowoffsety">Shadow offsetY</label><input type="number" name="shadowoffsety" id="shadowoffsety" value="0" />
+				<label for="shadowblur">Shadow blur</label><input type="number" name="shadowblur" id="shadowblur" value="10" />
+			</fieldset>
+		</form>
+		<canvas id="render"></canvas>
+		<button id="download">Download</button>
+	</body>
+</html>
+
