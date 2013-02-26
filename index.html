@@ -28,7 +28,9 @@
 			temp.style.fontSize = form.fontsize.value+"px";
 			temp.style.fontWeight = form.fontweight.value;
 			temp.style.letterSpacing = form.kerning.value+"px";
-			canvas.width = temp.offsetWidth - parseInt(form.kerning.value);
+			temp.style.whiteSpace = "nowrap";
+			temp.style.overflow = "hidden";
+			canvas.width = temp.offsetWidth - parseInt(form.kerning.value, 10)*2;
 			canvas.height = temp.offsetHeight;
 			document.body.removeChild(temp);
 			var context = canvas.getContext('2d');
