@@ -61,11 +61,6 @@
 				tempcontext.shadowOffsetY = 0;
 				tempcontext.shadowBlur = 2;
 				tempcontext.fillText(text[i], children[i][0], tempcanvas.height * 0.78);
-				tempcontext.beginPath();
-				tempcontext.moveTo(0,0);
-				tempcontext.lineTo(0,tempcanvas.height);
-				tempcontext.closePath();
-				tempcontext.stroke();
 				tempcontext.globalCompositeOperation = 'source-atop';
 				tempcontext.shadowColor = form.shadowcolor.value;
 				tempcontext.shadowOffsetX = form.shadowoffsetx.value;
@@ -75,7 +70,6 @@
 					tempcontext.fillText(text[i - 1], children[i][0] - children[i - 1][0] - form.kerning.value, canvas.height * 0.78);
 				}
 				context.drawImage(tempcanvas, children[i][0], 0, children[i][0], canvas.height, children[i][1], 0, children[i][0], canvas.height);
-				//context.drawImage(tempcanvas,children[i][1],0);
 			}
 		}
 	</script>
